@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.tflite
+package com.example.android.camerax.tflite.fragments
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import com.android.example.camerax.tflite.databinding.ActivityCameraBinding
+import androidx.fragment.app.Fragment
+import com.android.example.camerax.tflite.databinding.FragmentTfliteBinding
+import com.example.android.camerax.tflite.ObjectDetectionHelper
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.nnapi.NnApiDelegate
@@ -49,20 +46,19 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.image.ops.Rot90Op
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.min
-import kotlin.random.Random
 
 
 /** Activity that displays the camera and performs object detection on the incoming frames */
-class CameraActivity : AppCompatActivity() {
+class TFLiteFragment : Fragment() {
 
-    private lateinit var activityCameraBinding: ActivityCameraBinding
+    private var _activityCameraBinding: FragmentTfliteBinding? = null
+    private val activityCameraBinding get() = _activityCameraBinding!!
 
     private lateinit var bitmapBuffer: Bitmap
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val permissions = listOf(Manifest.permission.CAMERA)
-    private val permissionsRequestCode = Random.nextInt(0, 10000)
 
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private val isFrontFacing get() = lensFacing == CameraSelector.LENS_FACING_FRONT
@@ -91,14 +87,14 @@ class CameraActivity : AppCompatActivity() {
 
     private val tflite by lazy {
         Interpreter(
-            FileUtil.loadMappedFile(this, MODEL_PATH),
+            FileUtil.loadMappedFile(requireContext(), MODEL_PATH),
             Interpreter.Options().addDelegate(nnApiDelegate))
     }
 
     private val detector by lazy {
         ObjectDetectionHelper(
             tflite,
-            FileUtil.loadLabels(this, LABELS_PATH)
+            FileUtil.loadLabels(this.requireActivity(), LABELS_PATH)
         )
     }
 
@@ -108,10 +104,16 @@ class CameraActivity : AppCompatActivity() {
         Size(inputShape[2], inputShape[1]) // Order of axis is: {1, height, width, 3}
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        activityCameraBinding = ActivityCameraBinding.inflate(layoutInflater)
-        setContentView(activityCameraBinding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _activityCameraBinding = FragmentTfliteBinding.inflate(inflater, container, false)
+        return activityCameraBinding.root
+    }
+    override fun onViewCreated(view:View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         activityCameraBinding.cameraCaptureButton.setOnClickListener {
 
@@ -139,19 +141,25 @@ class CameraActivity : AppCompatActivity() {
             // Re-enable camera controls
             it.isEnabled = true
         }
+
+        bindCameraUseCases()
     }
 
-    override fun onDestroy() {
-        if (nnapiInitialized) nnApiDelegate.close()
-        super.onDestroy()
+    override fun onDestroyView() {
+        executor.shutdown()
+        executor.awaitTermination(1, TimeUnit.MINUTES)
+
+         if (nnapiInitialized) nnApiDelegate.close()
+        _activityCameraBinding = null
+        super.onDestroyView()
     }
 
     /** Declare and bind preview and analysis use cases */
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun bindCameraUseCases() = activityCameraBinding.viewFinder.post {
 
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener(Runnable {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        cameraProviderFuture.addListener({
 
             // Camera provider is now guaranteed to be available
             val cameraProvider = cameraProviderFuture.get()
@@ -217,19 +225,22 @@ class CameraActivity : AppCompatActivity() {
 
             // Apply declared configs to CameraX using the same lifecycle owner
             cameraProvider.unbindAll()
-            val camera = cameraProvider.bindToLifecycle(
-                this as LifecycleOwner, cameraSelector, preview, imageAnalysis)
+            cameraProvider.bindToLifecycle(
+                viewLifecycleOwner, cameraSelector, preview, imageAnalysis)
 
             // Use the camera object to link our preview use case with the view
             preview.setSurfaceProvider(activityCameraBinding.viewFinder.surfaceProvider)
 
-        }, ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(context))
     }
 
     private fun reportPrediction(
         prediction: ObjectDetectionHelper.ObjectPrediction?
     ) = activityCameraBinding.viewFinder.post {
 
+        if (_activityCameraBinding == null) {
+            return@post
+        }
         // Early exit: if prediction is not good enough, don't report it
         if (prediction == null || prediction.score < ACCURACY_THRESHOLD) {
             activityCameraBinding.boxPrediction.visibility = View.GONE
@@ -302,38 +313,8 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        // Request permissions each time the app resumes, since they can be revoked at any time
-        if (!hasPermissions(this)) {
-            ActivityCompat.requestPermissions(
-                this, permissions.toTypedArray(), permissionsRequestCode)
-        } else {
-            bindCameraUseCases()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == permissionsRequestCode && hasPermissions(this)) {
-            bindCameraUseCases()
-        } else {
-            finish() // If we don't have the required permissions, we can't run
-        }
-    }
-
-    /** Convenience method used to check if all permissions required by this app are granted */
-    private fun hasPermissions(context: Context) = permissions.all {
-        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-    }
-
     companion object {
-        private val TAG = CameraActivity::class.java.simpleName
+        private val TAG = TFLiteFragment::class.java.simpleName
 
         private const val ACCURACY_THRESHOLD = 0.5f
         private const val MODEL_PATH = "coco_ssd_mobilenet_v1_1.0_quant.tflite"

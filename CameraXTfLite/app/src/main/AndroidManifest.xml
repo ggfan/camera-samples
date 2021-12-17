@@ -18,8 +18,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.android.example.camerax.tflite">
 
-    <!-- Declare features -->
-    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -34,7 +36,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.example.android.camerax.tflite.CameraActivity"
+            android:name="com.example.android.camerax.tflite.MainActivity"
             android:rotationAnimation="seamless"
             tools:targetApi="O">
             <intent-filter>
