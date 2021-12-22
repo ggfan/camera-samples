@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.tflite.fragments
+package com.example.android.camerax.advanced.fragments
 
 import android.Manifest
 import android.content.Context
@@ -30,8 +30,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-import com.android.example.camerax.tflite.R
-import com.android.example.camerax.tflite.databinding.FragmentPermissionBinding
+import com.android.example.camerax.advanced.R
+import com.android.example.camerax.advanced.databinding.FragmentPermissionBinding
 
 private var PERMISSIONS_REQUIRED = arrayOf(
     Manifest.permission.CAMERA,

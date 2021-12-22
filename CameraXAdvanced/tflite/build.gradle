@@ -23,7 +23,7 @@ android {
     ndkVersion "21.3.6528147"
 
     defaultConfig {
-        applicationId 'com.android.example.camerax.tflite'
+        applicationId 'com.android.example.camerax.advanced'
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1

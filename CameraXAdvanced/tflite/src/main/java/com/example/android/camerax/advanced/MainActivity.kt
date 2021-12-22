@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.camerax.tflite
+package com.example.android.camerax.advanced
 
 
 import android.annotation.SuppressLint
@@ -21,7 +21,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.android.example.camerax.tflite.databinding.ActivityMainBinding
+import com.android.example.camerax.advanced.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

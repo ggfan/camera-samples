@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.tflite
+package com.example.android.camerax.advanced
 
 import android.graphics.RectF
 import org.tensorflow.lite.Interpreter

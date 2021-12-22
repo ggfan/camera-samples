@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.tflite.fragments
+package com.example.android.camerax.advanced.fragments
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -33,8 +33,8 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.android.example.camerax.tflite.databinding.FragmentTfliteBinding
-import com.example.android.camerax.tflite.ObjectDetectionHelper
+import com.android.example.camerax.advanced.databinding.FragmentTfliteBinding
+import com.example.android.camerax.advanced.ObjectDetectionHelper
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.nnapi.NnApiDelegate

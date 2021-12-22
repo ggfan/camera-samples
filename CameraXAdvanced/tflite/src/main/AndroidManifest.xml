@@ -16,7 +16,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.android.example.camerax.tflite">
+    package="com.android.example.camerax.advanced">
 
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -36,7 +36,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.example.android.camerax.tflite.MainActivity"
+            android:name="com.example.android.camerax.advanced.MainActivity"
             android:rotationAnimation="seamless"
             tools:targetApi="O">
             <intent-filter>
