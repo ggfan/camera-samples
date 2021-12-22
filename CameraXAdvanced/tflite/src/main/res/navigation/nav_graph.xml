@@ -26,8 +26,23 @@
         android:name="com.example.android.camerax.advanced.fragments.PermissionsFragment"
         android:label="Permissions" >
         <action
-            android:id="@+id/action_permissions_fragment_to_tflite_fragment"
+            android:id="@+id/action_permissions_to_selector"
+            app:destination="@id/selector_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/selector_fragment"
+        tools:layout="@layout/fragment_selector"
+        android:name="com.example.android.camerax.advanced.fragments.SelectorFragment"
+        android:label="Selector">
+        <action
+            android:id="@+id/action_selector_to_tflite"
             app:destination="@id/tflite_fragment" />
+        <action
+            android:id="@+id/action_selector_to_permissions"
+            app:destination="@id/permissions_fragment"
+            app:popUpTo="@id/permissions_fragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -36,9 +51,9 @@
         android:name="com.example.android.camerax.advanced.fragments.TFLiteFragment"
         android:label="Tflite">
         <action
-            android:id="@+id/action_tflite_to_permissions"
-            app:destination="@id/permissions_fragment"
-            app:popUpTo="@id/permissions_fragment"
+            android:id="@+id/action_tflite_to_selector"
+            app:destination="@id/selector_fragment"
+            app:popUpTo="@id/selector_fragment"
             app:popUpToInclusive="true"/>
     </fragment>
 

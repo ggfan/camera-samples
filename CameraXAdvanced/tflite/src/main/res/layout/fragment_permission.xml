@@ -29,5 +29,5 @@
         android:layout_gravity="center_vertical|center_horizontal"
         android:textSize="16sp"
         android:textColor="@color/txWhite"
-        android:text="touch anywhere to begin" />
+        android:text="Introduction Fragment\nTouch anywhere to begin" />
 </FrameLayout>

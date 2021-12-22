@@ -1,1 +1,3 @@
-include 'tflite'
+include ':tflite'
+include ':utils'
+
