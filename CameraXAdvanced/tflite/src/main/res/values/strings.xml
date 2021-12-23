@@ -17,6 +17,5 @@
     <string name="app_name">CameraXAdvanced</string>
     <string name="capture_button_alt">Capture</string>
     <string name="unknown">UNKNOWN</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sample_legend">Select a sample from\nthe following table:</string>
 </resources>

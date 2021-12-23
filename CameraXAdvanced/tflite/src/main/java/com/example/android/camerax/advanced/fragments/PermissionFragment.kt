@@ -22,25 +22,33 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.example.camerax.advanced.R
 import com.android.example.camerax.advanced.databinding.FragmentPermissionBinding
+import com.example.android.camera.utils.GenericListAdapter
 
 private var PERMISSIONS_REQUIRED = arrayOf(
     Manifest.permission.CAMERA,
     Manifest.permission.RECORD_AUDIO)
 
 /**
- * This [Fragment] requests permissions and, once granted, it will navigate to the next fragment
+ * This [Fragment] requests permissions and
  */
-class PermissionsFragment : Fragment() {
+class PermissionFragment : Fragment() {
+    private var _permissionViewBinding:FragmentPermissionBinding? = null
+    private val permissionViewBiding get() = _permissionViewBinding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -62,29 +70,45 @@ class PermissionsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return FragmentPermissionBinding.inflate(inflater, container, false).also {
-            it.permissionContainer.setOnClickListener {
-                if (hasPermissions(requireContext())) {
-                    Navigation.findNavController(requireActivity(), R.id.fragment_container)
-                        .navigate(PermissionsFragmentDirections.actionPermissionsToSelector())
-                } else {
-                    Log.e(PermissionsFragment::class.java.simpleName,
-                        "Re-requesting permissions ...")
-                    activityResultLauncher.launch(PERMISSIONS_REQUIRED)
+        _permissionViewBinding = FragmentPermissionBinding.inflate(inflater, container, false)
+        permissionViewBiding.sampleSelector.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            isEnabled = hasPermissions(requireContext())
+            adapter = GenericListAdapter(
+                sampleCollection,
+                itemLayoutId = R.layout.single_item_textview
+            ) { holderView, dataItem, position ->
+                holderView
+                    .findViewById<TextView>(R.id.fragmentSelection)
+                    ?.text = dataItem.first
+
+                holderView.setOnClickListener {
+                    Navigation
+                      .findNavController(requireActivity(), R.id.fragment_container)
+                      .navigate(dataItem.second)
                 }
             }
-        }.root
+        }
+        return permissionViewBiding.root
     }
     companion object {
         /** Convenience method used to check if all permissions required by this app are granted */
         fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
+
+        /**
+         * List of supported fragments in this sample, expand this list when new fragments are
+         * added.
+         */
+        val sampleCollection = listOf (
+            Pair("TFLite",PermissionFragmentDirections.actionPermissionToTflite()),
+            Pair("Barcode Scanner", PermissionFragmentDirections.actionPermissionToTflite())
+        )
     }
     private val activityResultLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
         { permissions ->
-            // Handle Permission granted/rejected
             var permissionGranted = true
             permissions.entries.forEach {
                 if (it.key in PERMISSIONS_REQUIRED && it.value == false)

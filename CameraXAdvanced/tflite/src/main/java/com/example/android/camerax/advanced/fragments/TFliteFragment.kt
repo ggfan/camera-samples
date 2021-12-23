@@ -63,6 +63,7 @@ class TFLiteFragment : Fragment() {
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private val isFrontFacing get() = lensFacing == CameraSelector.LENS_FACING_FRONT
 
+    private lateinit var imageAnalysis:ImageAnalysis
     private var pauseAnalysis = false
     private var imageRotationDegrees: Int = 0
     private val tfImageBuffer = TensorImage(DataType.UINT8)
@@ -78,11 +79,8 @@ class TFLiteFragment : Fragment() {
             .build()
     }
 
-    // nnAPiDelegate must be released by explicitly calling its close() function.
-    //     https://github.com/android/camera-samples/issues/417
-    private var nnapiInitialized = false
     private val nnApiDelegate by lazy  {
-        NnApiDelegate().apply { nnapiInitialized = true }
+        NnApiDelegate()
     }
 
     private val tflite by lazy {
@@ -92,6 +90,7 @@ class TFLiteFragment : Fragment() {
     }
 
     private val detector by lazy {
+///        Log.d("&&&&","Initializing ObjectDetectionHelper")
         ObjectDetectionHelper(
             tflite,
             FileUtil.loadLabels(this.requireActivity(), LABELS_PATH)
@@ -146,18 +145,22 @@ class TFLiteFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        executor.shutdown()
+        // clean up all outstanding analyzing jobs
+        imageAnalysis.clearAnalyzer()
+        executor.shutdownNow()
         executor.awaitTermination(1, TimeUnit.MINUTES)
 
-         if (nnapiInitialized) nnApiDelegate.close()
+        tflite.close()
+        nnApiDelegate.close()
+
         _activityCameraBinding = null
+
         super.onDestroyView()
     }
 
     /** Declare and bind preview and analysis use cases */
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun bindCameraUseCases() = activityCameraBinding.viewFinder.post {
-
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
 
@@ -171,7 +174,7 @@ class TFLiteFragment : Fragment() {
                 .build()
 
             // Set up the image analysis use case which will process frames in real time
-            val imageAnalysis = ImageAnalysis.Builder()
+            imageAnalysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(activityCameraBinding.viewFinder.display.rotation)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -195,7 +198,6 @@ class TFLiteFragment : Fragment() {
                     image.close()
                     return@Analyzer
                 }
-
                 // Copy out RGB bits to our shared buffer
                 image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer)  }
 
@@ -238,9 +240,11 @@ class TFLiteFragment : Fragment() {
         prediction: ObjectDetectionHelper.ObjectPrediction?
     ) = activityCameraBinding.viewFinder.post {
 
+        //  Exit if fragment UI has been destroyed.
         if (_activityCameraBinding == null) {
             return@post
         }
+
         // Early exit: if prediction is not good enough, don't report it
         if (prediction == null || prediction.score < ACCURACY_THRESHOLD) {
             activityCameraBinding.boxPrediction.visibility = View.GONE
