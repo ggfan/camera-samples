@@ -18,4 +18,5 @@
     <string name="capture_button_alt">Capture</string>
     <string name="unknown">UNKNOWN</string>
     <string name="sample_legend">Select a sample from\nthe following table:</string>
+    <string name="use_case_selection">use case selection</string>
 </resources>

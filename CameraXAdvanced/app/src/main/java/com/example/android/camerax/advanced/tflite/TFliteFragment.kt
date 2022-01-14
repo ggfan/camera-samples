@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.advanced.fragments
+package com.example.android.camerax.advanced.tflite
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -34,7 +34,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.android.example.camerax.advanced.databinding.FragmentTfliteBinding
-import com.example.android.camerax.advanced.ObjectDetectionHelper
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.nnapi.NnApiDelegate
@@ -233,7 +232,7 @@ class TFLiteFragment : Fragment() {
             // Use the camera object to link our preview use case with the view
             preview.setSurfaceProvider(activityCameraBinding.viewFinder.surfaceProvider)
 
-        }, ContextCompat.getMainExecutor(context))
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun reportPrediction(

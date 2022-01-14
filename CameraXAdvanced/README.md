@@ -12,8 +12,9 @@ The whole pipeline is able to maintain 30 FPS on a Pixel 3 XL with:
 - the default image size from Camera (640x480)
 - the default tensor size (300 x 300)
 
+## CameraX + MLKit Barcode Scanner
+A fragment is implemented to demonstrates Barcode(QR code) scanner usage.
 
 ### Screenshots
 ![demo](screenshots/demo.gif "demo animation")
-![screenshot 1](screenshots/screenshot-1.jpg "screenshot 1")
 

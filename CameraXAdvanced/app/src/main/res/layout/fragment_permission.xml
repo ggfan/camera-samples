@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bkDarkPurple"
-    tools:context="com.example.android.camerax.advanced.fragments.PermissionFragment">
+    tools:context="com.example.android.camerax.advanced.PermissionFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/horizontal_guideline"

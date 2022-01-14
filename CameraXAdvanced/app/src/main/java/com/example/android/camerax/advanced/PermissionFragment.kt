@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.camerax.advanced.fragments
+package com.example.android.camerax.advanced
 
 import android.Manifest
 import android.content.Context

@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/permission_fragment"
-        android:name="com.example.android.camerax.advanced.fragments.PermissionFragment"
+        android:name="com.example.android.camerax.advanced.PermissionFragment"
         android:label="Permission" >
         <action
             android:id="@+id/action_permission_to_tflite"
@@ -34,7 +34,7 @@
     <fragment
         android:id="@+id/tflite_fragment"
         tools:layout="@layout/fragment_tflite"
-        android:name="com.example.android.camerax.advanced.fragments.TFLiteFragment"
+        android:name="com.example.android.camerax.advanced.tflite.TFLiteFragment"
         android:label="Tflite">
         <action
             android:id="@+id/action_tflite_to_permission"

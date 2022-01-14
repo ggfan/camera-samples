@@ -27,5 +27,5 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@drawable/ic_tflite"
-        android:contentDescription="usage selection" />
+        android:contentDescription="@string/use_case_selection" />
 </RelativeLayout>
