@@ -21,18 +21,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.example.camerax.advanced.R
 import com.android.example.camerax.advanced.databinding.FragmentPermissionBinding
@@ -76,17 +73,19 @@ class PermissionFragment : Fragment() {
             isEnabled = hasPermissions(requireContext())
             adapter = GenericListAdapter(
                 sampleCollection,
-                itemLayoutId = R.layout.single_item_textview
+                itemLayoutId = R.layout.single_item_image_button
             ) { holderView, dataItem, position ->
-                holderView
-                    .findViewById<TextView>(R.id.fragmentSelection)
-                    ?.text = dataItem.first
-
-                holderView.setOnClickListener {
-                    Navigation
-                      .findNavController(requireActivity(), R.id.fragment_container)
-                      .navigate(dataItem.second)
-                }
+                holderView.findViewById<ImageButton>(R.id.selectionButton)
+                    ?.apply {
+                        val context = requireContext()
+                        background = context.resources.getDrawable(dataItem.first,
+                            context.theme)
+                        setOnClickListener {
+                            Navigation
+                                .findNavController(requireActivity(), R.id.fragment_container)
+                                .navigate(dataItem.second)
+                        }
+                    }
             }
         }
         return permissionViewBiding.root
@@ -102,8 +101,8 @@ class PermissionFragment : Fragment() {
          * added.
          */
         val sampleCollection = listOf (
-            Pair("TFLite",PermissionFragmentDirections.actionPermissionToTflite()),
-            Pair("Barcode Scanner", PermissionFragmentDirections.actionPermissionToTflite())
+            Pair(R.drawable.ic_tflite,PermissionFragmentDirections.actionPermissionToTflite()),
+            Pair(R.drawable.ic_qr_scanner, PermissionFragmentDirections.actionPermissionToTflite())
         )
     }
     private val activityResultLauncher =
